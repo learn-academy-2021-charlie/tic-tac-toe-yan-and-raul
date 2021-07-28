@@ -2,24 +2,29 @@ import React, { Component } from 'react'
 import Square from './components/Square'
 import './App.css'
 
-// 1. JavaScript(Logic/constructor) 2. HTML(Render()) 3. CSS(App.css)
+// 1. JavaScript(Logic/constructor) 
+// 2. HTML(Render()from parent to child,pass props)-->debug within browser/console 
+// 3. CSS(App.css)
 
-// 1. Logic for this game:
-// - index for the board [0-8]
-// - horzinatal index =[0,1,2], [3,4,5], [6,7,8]
-// - vertical index = [0,3,6], [1,4,7], [2,5,8]
-// - diaginal index = [0,4,8], [2,4,6]
-// - winner array = above index
-// - board--->an array used for record the value when a new game start. board[index]--->the user input
+// Logic for this game:
+// For winner, should be [3 same board value/either"X"or "O""] in [the combination array/3 index in one line]
 
+// Highlight: In JavaScript, a truthy value is a value that is considered true. 
+// All values are truthy unless they are defined as falsy.(i.e. except for false,0,-0,0n,"",null,undefined,and NaN).
+// "X" or "O"-->Truthy
+// null-->Falsy
 
 class App extends Component{
   constructor(props){
     super(props)
     this.state = {
-      squares: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-      turn: "X",// Start either X or O, we choose default value: "X"
-      board: [null, null, null, null, null, null, null, null, null],// 9-->3*3 board,default value: null(empty board)  new Array(9).fill(null)
+      turn: "X",// Start either "X" or "O", we choose default value: "X"
+      board: [null, null, null, null, null, null, null, null, null],
+      // 9-->3*3 board,default value: null(empty board)  new Array(9).fill(null)
+      winnerCombinations: [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]],
+      // - horzinatal index =[0,1,2], [3,4,5], [6,7,8]
+      // - vertical index = [0,3,6], [1,4,7], [2,5,8]
+      // - diaginal index = [0,4,8], [2,4,6] 
     }
   }
 
@@ -28,50 +33,64 @@ class App extends Component{
     this.turn = this.turn === "X"? "O" : "X"//If the current turn is X-->then O; if the current turn is O, then X
   }
 
+  // Set up method to loop throgh the winner array-->findWinnder()
   findWinner() { 
-    const winner = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
-    for(let i = 0; i < 3; i++){
+    for(const combination of this.state.winnerCombinations){
+      const[a , b, c] = combination
+      // The destructuring assignment syntax is a JavaScript expression that makes it possible to unpack values from arrays, 
+      // or properties from objects, into distinct variables. 
       
+      if(this.state.board[a] && (this.state.board[a] === this.state.board[b] && this.state.board[a] === this.state.board[c]))
+        //Only three value: null/"X"/"O"
+        // board[a] = "X" , find a->b = "X", find a->c = "X"-->3 "X"--->Winner
+        // The same thing with "O"---> 3 "O"-->Winner
+        {
+          return combination
+        }
+      return null;
     }
   }
-
-  // Set up method to play-->makeMove(), e.g.makeMove[0]->null->"X", makeMove[6]-->null->"O", so, board = ["X",null,null,null,null, null,"O",null,null]
-  makeMove(index){
-    //We need to protect the user click on the same location.
-    //if this.board[index] has value->stop
-    // In JavaScript, a truthy value is a value that is considered true. 
-    // All values are truthy unless they are defined as falsy.(i.e. except for false,0,-0,0n,"",null,undefined,and NaN).
-    if(this.board[index]){
-      return;
-    }//We need to make sure the game is not over.-->Winner array,we need loop through the winner array.
-
-
-
-
-    this.board[index] = this.turn;
-    this.nextTurn();
-
-  }
-
   
-
-
-
- 
-
+  // Set up method to check NOT the situations: findWinner/if the board run out space
   isInProgress() {
-    return !this.findWinner() && this.board.includes(null);
+    return !this.findWinner() && this.state.board.includes(null);
     
   }
 
+  // Set up method to play-->makeMove()
+  // e.g.makeMove[0]->null->"X", makeMove[6]-->null->"O", so, board = ["X",null,null,null,null, null,"O",null,null]
+  makeMove = (index) =>{
+    if(!this.isInProgress()){
+      return
+      // We need to make sure the game is not over. 
+    }else if(this.state.board[index]){
+      return
+      // We need to make sure the current move to empty space
+      // this.board[index]=true-->there is "X" or "O" already, so return/cancel this move
+    }else{
+      this.setState({board:this.turn})//logic here:this.state.board[index] = this.state.turn
+      if(!this.findWinner()){
+        this.nextTurn()
+      }
+    }
+  }
+  
   render(){
     return(
       <>
         <h1>Tic Tac Toe</h1>
-        <Square />
-        {console.log(this.state.turn)}
-        {console.log(this.state.board)}
-
+        <div id = "gameboard">
+        {this.state.board.map((value,index) =>{
+          return(
+            <Square
+            value = {value}
+            key = {index}
+            index = {index}        
+            makeMove = {this.makeMove}
+            />
+          )
+          })}
+        </div>
       </>
     )
   }
