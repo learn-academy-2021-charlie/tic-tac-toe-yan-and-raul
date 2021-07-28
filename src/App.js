@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import Square from './components/Square'
 import './App.css'
+import logo from './logo.png'
 
 // 1. JavaScript(Logic/constructor) 
 // 2. HTML(Render()from parent to child,pass props)-->debug within browser/console 
@@ -78,7 +79,14 @@ class App extends Component{
   render(){
     return(
       <>
+        <img src={logo} alt = "tictactoe" className = "logo"/>
         <h1>Tic Tac Toe</h1>
+        <h2>Tic-tac-toe, noughts and crosses, or Xs and Os/“X’y O’sies”, </h2>
+        <h2>is a paper-and-pencil game for two players, X and O, </h2>
+        <h2>who take turns marking the spaces in a 3×3 grid. </h2>
+        <h2>The player who succeeds in placing three of their marks</h2> 
+        <h2>in a diagonal, horizontal, or vertical row is the winner.</h2>
+        <button onClick = {this.restartGame}>Restart</button>
         <div id = "gameboard">
         {this.state.board.map((value,index) =>{
           return(
@@ -91,6 +99,7 @@ class App extends Component{
           )
           })}
         </div>
+        <footer>Coded by Yan and Raul</footer>
       </>
     )
   }
